@@ -1,0 +1,222 @@
+<!-- sales/templates/admin/sale_summary_change_list.html -->
+
+{% extends "admin/change_list.html" %} {% block content_title %}
+<h1><strong> Funding Income Summary </strong></h1>
+{% endblock %} {% block result_list %}
+<!-- Our content goes here... -->
+<div class="results">
+    <table>
+
+        <thead>
+            <tr>
+                <th>
+                    <div class="text">
+                        <a href="#">User</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">Date</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">Total Funding Fee</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">Total Asset (Beginning of the Day)</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">
+                            <strong>Daily Return (%)</strong>
+                        </a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">
+                            <strong>Annual Return (%)</strong>
+                        </a>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in summary %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td> {{ row.username }} </td>
+                <td> {{ row.incomefunding__date }} </td>
+                <td> $ {{ row.total | floatformat:5}} </td>
+                <td> $ {{ row.totalAsset | floatformat:2 }}</td>
+                <td>
+                    <strong>
+                {{row.daily_return_percentage | floatformat:5}}
+              </strong>
+                </td>
+                <td>
+                    <strong>
+                  {{row.annual_return_percentage| floatformat:5}}
+                </strong>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tbody>
+            <tr>
+                <td></td>
+            </tr>
+            {% for row in summary_total %}
+            <tr style="font-weight:bold; border-top:2px solid #0a0a0a;">
+                <td colspan="2"> Accumulated Funding Fee of {{ row.username }} </td>
+                <td colspan="4"> $ {{ row.accumulated_fundingfee | floatformat:5 }}</td>
+            </tr>
+            <tr style="font-weight:bold; border-top:2px solid #DDDDDD;">
+                <td colspan="2"> Accumulated Trade Profit of {{ row.username }} </td>
+                <td colspan="4"> $ {{ row.accumulated_trade_profit | floatformat:5 }}</td>
+            </tr>
+            <tr style="font-weight:bold; border-top:2px solid #DDDDDD;">
+                <td colspan="2"> Net Profit of {{ row.username }} </td>
+                <td colspan="4"> $ {{ row.total_profit | floatformat:5 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+<br/>
+<hr/>
+<br/>
+<h1> <strong>Collateral Ratios</strong> </h1>
+<div class="results">
+    <table>
+
+        <thead>
+            <tr>
+                <th>
+                    <div class="text">
+                        <a href="#">User</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">Reference Time</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">
+                            <strong>Coin Symbol</strong>
+                        </a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">
+                            <strong>Collateral Ratio</strong>
+                        </a>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for row in collateral_ratio %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td> {{ row.user }} </td>
+                <td> {{ row.created_time }} </td>
+                <td> {{ row.symbol }} </td>
+                <td> {% widthratio row.collateral_ratio 1 100 %} %</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form></form>
+</div>
+
+<br/>
+<hr/>
+
+<!-- <hr/><br/> -->
+<h1> <strong>Adjust Positions</strong>
+    <form action={% url 'checkPriceDetector' %} method="post">{% csrf_token %}
+    <input name="symbol" id="symbol" value="btcusdt" readonly hidden>
+    <button type="submit" class="button">Check Availability</button>
+    </form>
+</h1>
+
+{% if messages %}
+<form action={% url 'adjustPosition' %} method="post">{% csrf_token %}
+    <input id='action' type="text" name="username" value={{user.username}} {% if not user.is_superuser %} readonly hidden {% endif %} />
+    <br/><label>Action</label>
+    <select name="action" id="action">
+        <option value="enter">Enter</option>
+        <option value="leave">Leave</option>
+    </select>
+    <br/><label>Symbol</label>
+    <select name="symbol" id="symbol">
+        {% for row in target_coins %}
+            <option value={{row.symbol}}>{{row.symbol}}</option>
+        {% endfor %}
+    </select>
+    <label>Notional Amount</label>
+    <input id='notional_amount' type="text" name="notional_amount" value=100 />
+    <button type="submit" class="button">Execute</button>
+</form>
+{% endif %}
+<br/>
+<hr/>
+<br/>
+
+<h1> <strong>Periodic Task Management</strong> </h1>
+<div class="results">
+    <table>
+
+        <thead>
+            <tr>
+                <th>
+                    <div class="text">
+                        <a href="#">Bot Name</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">Status</a>
+                    </div>
+                </th>
+                <th>
+                    <div class="text">
+                        <a href="#">
+                            <strong>User Action</strong>
+                        </a>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for row in periodic_task %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td> {{ row.name }} </td>
+                <td>{% if row.enabled %} O {% else %} X {% endif %}</td>
+                <!-- <td> {{ row.enabled}} </td> -->
+                <td>
+                    <form action={% url 'botAction2' row.name %} method="post">{% csrf_token %}
+                        <input id='action' type='hidden' name="action" value={% if row.enabled %} stop {% else %} start {% endif %} />
+                        <button type="submit" class="button">{% if row.enabled %} Stop {% else %} Start {% endif %}</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ... -->
+{% endblock %} {% block pagination %}{% endblock %}

@@ -1,0 +1,36 @@
+bot:
+  interval: 900 # 청산방지 봇이 돌아가는 주기 (seconds)
+  targetTimeSpareMinute: 30 # 펀딩비 투자 봇이 돌 여유 시간 (ex) 값이 20이라면 01:00, 09:00, 17:00 기준으로 00:40, 08:40, 16:40)
+
+  # ========================== 아래 세 변수는 서로 연동되어야 함 =========================================
+  # 규칙 1. 현재 계정에서 설정된 레버리지에서 낮추는 것은 불가능 (바이낸스 정책에서 격리마진 모드에서 레버리지 낮추기가 되지 않음)
+  # 규칙 2. 레버리지와 상방/하방 제한 증거금 비율은 연동되어야 함. 예를들어 레버리지가 2라면, 상방 제한 증거금 비율은 0.5보다 낮을 수 없음 (initial margin 밑으로 인출이 불가하기에)
+  leverage: 4 # 레버리지
+  safeRatioUpperBound: 0.26 # 상방 제한 증거금 비율 (추후 레버리지와 연동)
+  safeRatioLowerBound: 0.14 # 하방 제한 증거금 비율 (추후 레버리지와 연동)
+  # ===================================================================================================
+
+  targetCoinPairs: # 관리할 코인 pair 리스트
+    # - 'LUNAUSDT'
+    - 'XRPUSDT'
+    # - '1000SHIBUSDT' 
+    - 'ETHUSDT'
+    - 'VETUSDT'
+    # - 'MKRUSDT'
+    # - 'BTCUSDT'
+  newInvestmentCoinPairs: # 신규 투자할 코인 pair 리스트 (관리할거면 관리 코인 리스트에도 추가)
+    # - 'LUNAUSDT'
+    - 'XRPUSDT'
+    # - '1000SHIBUSDT' 
+    - 'ETHUSDT'
+    - 'VETUSDT'
+  
+  marginDelta: 0.01 # 1회의 반복에서 Rebalancing 하는 자산의 비율 (선물 기준)
+  usdtDecimal: 0.01 # usdt를 관리할 소수점. 0.01 로 설정 시 0.01 달러까지 계산해 관리됨
+
+  usdtReserveRatio: 0.1 # Spot 지갑에 항상 남겨둘 USDT 비율 (총 자산 기준)
+  minimumInvestmentNotional: 100 # 이 수량의 USDT 단위로 투자가 됨 (현물 + 선물의 Notional USDT
+  safeInvestmentRatio: 0.98 # 급격한 가격변동에 주문이 실패하지 않도록 주문 가능 개수에 이 비율을 곱해서 최종 주문을 넣음
+
+  premiumIndexWindow: 20 # Premium Index들의 표준편차를 구할 때 사용되는 데이터 수 (분 단위)
+  premiumIndexTriggerSigma: 1.2 # 몇 sigma 보다 큰 premium index를 보일 때 long/short 포지션 진입할 지 선택

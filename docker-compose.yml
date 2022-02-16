@@ -1,0 +1,23 @@
+version: "3"
+services:
+  springbank-quant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: springbank-quant
+    container_name: springbank-quant
+    environment:
+      - DJANGO_MODE=DEPLOY
+    ports:
+      - "8000:8000"
+    links:
+      - redis-container
+    depends_on:
+      - redis-container
+    volumes:
+      - ./database_docker:/srv/docker-server/database
+  redis-container:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
